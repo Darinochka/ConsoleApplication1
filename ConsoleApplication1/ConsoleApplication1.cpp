@@ -16,6 +16,7 @@ void add(vector <vector <string>>& work, int& q, string plan, string date) {
 		work[q].push_back(date);
 		work[q].push_back(plan);
 		q++;
+		//Alisher
 	}
 }
 
