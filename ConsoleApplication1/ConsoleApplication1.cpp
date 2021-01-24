@@ -8,12 +8,13 @@ void ChangeCapital(map <string, string>& countries_capitals, const string& count
 }
 int main() {
     int n, i;
-    string command, country, capital;
+    string command;
     map <string, string> countries_capitals;
     cin >> n;
     for (i = 0; i < n; i++) {
         cin >> command;
         if (command == "CHANGE_CAPITAL") {
+            string country, capital;
             cin >> country >> capital;
             if (countries_capitals.count(country) == 0) {
                  cout << "Introduce new country " << country << " with capital " << capital;
@@ -27,7 +28,11 @@ int main() {
             ChangeCapital(countries_capitals, country, capital);
         }
         if (command == "RENAME") {
-            
+            string country_old, country_new;
+            cin >> country_old >> country_new;
+            if (country_old == country_new) {
+
+            } 
         }
         if (command == "ABOUT") {
 
