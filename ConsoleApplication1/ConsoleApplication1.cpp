@@ -3,17 +3,22 @@
 
 using namespace std;
 
+void PrintMap(map <string, string>& countries_capitals) {
+    for(auto item: countries_capitals) {
+        cout << item.first << ": " << item.second << endl;
+    }
+}
 void ChangeCapital(map <string, string>& countries_capitals, const string& country, const string& capital) {
     countries_capitals[country] = capital;
 }
 
 map <string, string> ChangeCountry(const map <string, string>& countries_capitals, const string& country_old, const string& country_new) {
     map <string, string> countries_capitals_new;
-    for (auto& [key, value]: countries_capitals) {
-        if (key != country_old) {
-            countries_capitals_new[key] = value;
+    for (auto item: countries_capitals) {       
+        if (item.first != country_old) {
+            countries_capitals_new[item.first] = item.second;
         } else {
-            countries_capitals_new[country_new] = value;
+            countries_capitals_new[country_new] = item.second;
         }
     }
     return countries_capitals_new;
@@ -29,15 +34,16 @@ int main() {
             string country, capital;
             cin >> country >> capital;
             if (countries_capitals.count(country) == 0) {
-                 cout << "Introduce new country " << country << " with capital " << capital << endl;
+                cout << "Introduce new country " << country << " with capital " << capital << endl;
             }
             else if (countries_capitals[country] == capital) {
                 cout << "Country " << country << " hasn't changed its " << capital << endl;
             }
             else {
-                cout << "Country" << country << " has changed its capital from " << countries_capitals[country] << " to " << capital << endl;
-                ChangeCapital(countries_capitals, country, capital);
+                cout << "Country " << country << " has changed its capital from " 
+                << countries_capitals[country] << " to " << capital << endl;
             }
+            ChangeCapital(countries_capitals, country, capital);
         }
         if (command == "RENAME") {
             string country_old, country_new;
@@ -46,15 +52,17 @@ int main() {
                 cout << "Incorrect rename, skip" << endl;
             } 
             else {
-                cout << "Country " << country_old << " with capital " << countries_capitals[country_old] << " has been renamed to " << country_new;
+                cout << "Country " << country_old << " with capital " 
+                << countries_capitals[country_old] << " has been renamed to " << country_new << endl;
                 countries_capitals = ChangeCountry(countries_capitals, country_old, country_new);
             }
         }
-        //if (command == "ABOUT") {
+        PrintMap(countries_capitals);
+        if (command == "ABOUT") {
 
-       // }
-        //if (command == "DUMP") {
+        }
+        if (command == "DUMP") {
 
-        //}
+        }
     }
 }
