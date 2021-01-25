@@ -5,8 +5,9 @@ using namespace std;
 
 void PrintMap(map <string, string>& countries_capitals) {
     for(auto item: countries_capitals) {
-        cout << item.first << ": " << item.second << endl;
+        cout << item.first << "/" << item.second << " ";
     }
+    cout << endl;
 }
 void ChangeCapital(map <string, string>& countries_capitals, const string& country, const string& capital) {
     countries_capitals[country] = capital;
@@ -57,12 +58,21 @@ int main() {
                 countries_capitals = ChangeCountry(countries_capitals, country_old, country_new);
             }
         }
-        PrintMap(countries_capitals);
         if (command == "ABOUT") {
-
+            string country;
+            cin >> country;
+            if (countries_capitals.count(country) == 0) {
+                cout << "Country " << country << " doesn't exist" << endl;
+            } else {
+                cout << "Country " << country << " has capital " << countries_capitals[country] << endl;
+            }
         }
         if (command == "DUMP") {
-
+            if (countries_capitals.empty()) {
+                cout << "There are no countries in the world" << endl;
+            } else {
+                PrintMap(countries_capitals);
+            }
         }
     }
 }
