@@ -1,81 +1,53 @@
 ﻿#include <iostream>
 #include <map>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-void PrintMap(map <string, string>& countries_capitals) {
-    for(auto item: countries_capitals) {
-        cout << item.first << "/" << item.second << " ";
-    }
-    cout << endl;
-}
-
-void ChangeCapital(map <string, string>& countries_capitals, const string& country, const string& capital) {
-    countries_capitals[country] = capital;
-}
-
-map <string, string> ChangeCountry(const map <string, string>& countries_capitals, const string& country_old, const string& country_new) {
-    map <string, string> countries_capitals_new;
-    for (auto item: countries_capitals) {       
-        if (item.first != country_old) {
-            countries_capitals_new[item.first] = item.second;
-        } else {
-            countries_capitals_new[country_new] = item.second;
+void PrintMap(const map <string, vector<string>>& buses_stops) {
+    for (const auto& item : buses_stops) {
+        cout << "Bus " << item.first << ": ";
+        for (const string stop : item.second) {
+            cout << stop << " ";
         }
+        cout << endl;
     }
-    return countries_capitals_new;
 }
 
+void Print
 int main() {
-    int n, i;
+    map <string, vector<string>> buses_stops;
+    int n;
     string command;
-    map <string, string> countries_capitals;
     cin >> n;
-    for (i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         cin >> command;
-        if (command == "CHANGE_CAPITAL") {
-            string country, capital;
-            cin >> country >> capital;
-            if (countries_capitals.count(country) == 0) {
-                cout << "Introduce new country " << country << " with capital " << capital << endl;
-            }
-            else if (countries_capitals[country] == capital) {
-                cout << "Country " << country << " hasn't changed its capital" << endl;
-            }
-            else {
-                cout << "Country " << country << " has changed its capital from " 
-                << countries_capitals[country] << " to " << capital << endl;
-            }
-            ChangeCapital(countries_capitals, country, capital);
-        }
-        if (command == "RENAME") {
-            string country_old, country_new;
-            cin >> country_old >> country_new;
-            if (country_old == country_new || countries_capitals.count(country_old) == 0 || countries_capitals.count(country_new) == 1) {
-                cout << "Incorrect rename, skip" << endl;
-            } 
-            else {
-                cout << "Country " << country_old << " with capital " 
-                << countries_capitals[country_old] << " has been renamed to " << country_new << endl;
-                countries_capitals = ChangeCountry(countries_capitals, country_old, country_new);
+        if (command == "NEW_BUS") {
+            string bus, temp;
+            int stop_count;
+            cin >> bus >> stop_count;
+            for (int j = 0; j < stop_count; j++) {
+                cin >> temp;
+                buses_stops[bus].push_back(temp);
             }
         }
-        if (command == "ABOUT") {
-            string country;
-            cin >> country;
-            if (countries_capitals.count(country) == 0) {
-                cout << "Country " << country << " doesn't exist" << endl;
-            } else {
-                cout << "Country " << country << " has capital " << countries_capitals[country] << endl;
+        if (command == "BUSES_FOR_STOP") {
+            string stop;
+            bool key;
+            cin >> stop;
+            key = false;
+            for (const auto& item: buses_stops) {
+                if (find(item.second.begin(), item.second.end(), stop) != item.second.end()) {
+                    cout << item.first << " ";
+                    key = true;
+                }
             }
-        }
-        if (command == "DUMP") {
-            if (countries_capitals.empty()) {
-                cout << "There are no countries in the world" << endl;
+            if (!key) {
+                cout << "No bus" << endl;
             }
-            else {
-                PrintMap(countries_capitals);
-            }
+            cout << endl;
         }
     }
+    PrintMap(buses_stops);
 }
