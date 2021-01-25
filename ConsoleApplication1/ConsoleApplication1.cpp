@@ -9,6 +9,7 @@ void PrintMap(map <string, string>& countries_capitals) {
     }
     cout << endl;
 }
+
 void ChangeCapital(map <string, string>& countries_capitals, const string& country, const string& capital) {
     countries_capitals[country] = capital;
 }
@@ -24,6 +25,7 @@ map <string, string> ChangeCountry(const map <string, string>& countries_capital
     }
     return countries_capitals_new;
 }
+
 int main() {
     int n, i;
     string command;
@@ -38,7 +40,7 @@ int main() {
                 cout << "Introduce new country " << country << " with capital " << capital << endl;
             }
             else if (countries_capitals[country] == capital) {
-                cout << "Country " << country << " hasn't changed its " << capital << endl;
+                cout << "Country " << country << " hasn't changed its capital" << endl;
             }
             else {
                 cout << "Country " << country << " has changed its capital from " 
@@ -70,7 +72,8 @@ int main() {
         if (command == "DUMP") {
             if (countries_capitals.empty()) {
                 cout << "There are no countries in the world" << endl;
-            } else {
+            }
+            else {
                 PrintMap(countries_capitals);
             }
         }
