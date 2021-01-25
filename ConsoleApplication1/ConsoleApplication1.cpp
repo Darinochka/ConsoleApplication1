@@ -58,7 +58,7 @@ int main() {
             if (find(buses.begin(), buses.end(), bus) != buses.end()) {
                 for (auto stop: buses_stops[bus]) {
                     key = false;
-                    cout << "Stop" << stop << ": ";
+                    cout << "Stop " << stop << ": ";
                     for (auto bus_name: buses) {
                         for (auto item: buses_stops) {
                             if (bus_name == item.first && bus_name != bus) {
