@@ -1,91 +1,50 @@
 ﻿#include <iostream>
-#include <map>
 #include <vector>
-#include <algorithm>
+#include <map>
 
 using namespace std;
 
-void AllBuses(const map <string, vector<string>>& buses_stops) {
-    for (const auto& item : buses_stops) {
-        cout << "Bus " << item.first << ": ";
-        for (const string stop : item.second) {
-            cout << stop << " ";
+int CheckStop(const map <int, vector<string>>& stops, const vector <string>& c) {
+    bool flag = false;
+    for (const auto& [key, value] : stops) {
+        if (value.size() == c.size()) {
+            flag = true;
+            for (int i = 0; i < value.size(); i++) {
+                if (value[i] != c[i]) {
+                    flag = false;
+                    break;
+                }
+            }
         }
-        cout << endl;
+        if (flag) {
+            return key;
+        }
     }
+    return -1;
 }
 
 int main() {
-    map <string, vector<string>> buses_stops;
-    vector <string> buses;
-    int n;
-    string command;
+    int n, coun;
+    string temp;
+    map <int, vector<string>> stops;
+    vector <string> c;
     cin >> n;
     for (int i = 0; i < n; i++) {
-        cin >> command;
-        if (command == "NEW_BUS") {
-            string bus, temp;
-            int stop_count;
-            cin >> bus >> stop_count;
-            for (int j = 0; j < stop_count; j++) {
-                cin >> temp;
-                buses_stops[bus].push_back(temp);
-            }
-            buses.push_back(bus);
+        cin >> coun;
+        c.clear();
+        for (int j = 0; j < coun; j++) {
+            cin >> temp;
+            c.push_back(temp); 
         }
-        if (command == "BUSES_FOR_STOP") {
-            string stop;
-            bool key;
-            cin >> stop;
-            key = false;
-            for (auto bus: buses) {
-                for (const auto& item: buses_stops) {
-                    if (find(item.second.begin(), item.second.end(), stop) != item.second.end() & bus == item.first) {
-                        cout << item.first << " ";
-                        key = true;
-                    }
-                }
+        if (CheckStop(stops, c) == -1) {
+            for (auto item : c) {
+                stops[i+1].push_back(item);
             }
-            if (!key) {
-                cout << "No stop";
-            }
-            cout << endl;
+            cout << "New bus " << i + 1 << endl;;
         }
-        if (command == "STOPS_FOR_BUS") {
-            string bus;
-            bool key;
-            cin >> bus;
-            if (find(buses.begin(), buses.end(), bus) != buses.end()) {
-                for (auto stop: buses_stops[bus]) {
-                    key = false;
-                    cout << "Stop " << stop << ": ";
-                    for (auto bus_name: buses) {
-                        for (auto item: buses_stops) {
-                            if (bus_name == item.first && bus_name != bus) {
-                                if (find(item.second.begin(), item.second.end(), stop) != item.second.end()) {
-                                    cout << item.first << " ";
-                                    key = true;
-                                }
-                            }
-                        }
-                    }
-                    if (!key) {
-                        cout << "no interchange";
-                    }
-                    cout << endl;
-                }
-            }
-            else {
-                cout << "No bus" << endl;
-            }
-        }
-        if (command == "ALL_BUSES") {
-            if (!buses_stops.empty()) {
-                AllBuses(buses_stops);
-            }
-            else {
-                cout << "No buses" << endl;
-            }
+        else {
+            cout << "Already exists for " << CheckStop(stops, c) << endl;
         }
     }
+    return 0;
 }
