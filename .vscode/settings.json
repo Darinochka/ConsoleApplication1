@@ -4,7 +4,8 @@
         "map": "cpp",
         "xstring": "cpp",
         "utility": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "set": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
