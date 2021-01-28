@@ -1,38 +1,31 @@
 ﻿#include <iostream>
 #include <set>
 #include <map>
+#include <vector>
+#include <algorithm>
+#include <ctype.h> 
+#include <stdio.h>
 
 using namespace std;
 
-int CheckStops(const map <int, set<string>>& stops, const set <string>& temp) {
-    for (const auto& [key, value] : stops) {
-            if (value == temp) {
-                return key;
-            }
-    }
-    return 0;
+string lowercase(const string& in) {
+  string out;
+  transform(in.begin(), in.end(), back_inserter(out), ::tolower );
+  return out;
 }
 
 int main() {
-    int n, q = 0;
-    string stop;
+    int n, i = 0;
+    string str;
+    char c; 
     cin >> n;
-    map <int, set<string>> stops;
-    set <string> temp;
-    for (int i = 0; i < n; i++) {
-        int count;
-        cin >> count;
-        temp.clear();
-        for (int j = 0; j < count; j++) {
-            cin >> stop;
-            temp.insert(stop);
-        }
-        if (CheckStops(stops, temp) == 0) {
-            stops[++q] = temp;
-            cout << "New bus " << q << endl; 
-        } else {
-            cout << "Already exists for " << CheckStops(stops, temp) << endl;
-        }
+    vector <string> strings(n);
+    for (string& str : strings) {
+        cin >> str;
     }
-    return 0;
+    sort(strings.begin(), strings.end(), [](string a, string b) {return lowercase(a) < lowercase(b);});
+    for (string str : strings) {
+        cout << str << " ";
+    }
+    return 0;   
 }
