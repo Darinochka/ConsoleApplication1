@@ -1,44 +1,93 @@
 ﻿#include <iostream>
-#include <vector>
-#include <fstream>
-#include <string>
-
-
 using namespace std;
 
-struct Student {
-  string firstName;
-  string secondName;
-  int day;
-  int month;
-  int year;
-  void name() {
-    cout << firstName << " " << secondName << endl;
-  }
-  void date() {
-    cout << day << "." << month << "." << year << endl;
-  }
+class Rational {
+public:
+    Rational() {
+        newNumerator = 0;
+        newDenominator = 1;
+    }
+
+    Rational(int numerator, int denominator) {
+        newNumerator = numerator;
+        newDenominator = denominator;
+        if (newNumerator == 0) {
+            newDenominator = 1;
+        } else {
+            int maxDivider = Divider(abs(newNumerator), abs(newDenominator));
+            if (newNumerator * newDenominator < 0) {
+                neg = -1;
+            }
+            newNumerator /= maxDivider;
+            newDenominator /= maxDivider;
+        }
+    }
+
+    int Numerator() const {
+        return abs(newNumerator) * neg;
+    }
+
+    int Denominator() const {
+        return abs(newDenominator);
+    }
+
+private:
+    int newNumerator, newDenominator, neg = 1;
+    int Divider(int numerator, int denominator) {
+        int remainder = 1;
+        while (remainder != 0) {
+            remainder = max(numerator, denominator) % min(numerator, denominator);
+            if (numerator > denominator) {
+                numerator = remainder;
+            } else {
+                denominator = remainder;
+            }
+        }  
+        return max(numerator, denominator); 
+    }
 };
 
 int main() {
-  int n, m, number;
-  string command;
-  cin >> n;
-  vector <Student> students(n);
-
-  for (int i = 0; i < n; i++) {
-    cin >> students[i].firstName >> students[i].secondName >> 
-          students[i].day >> students[i].month >> students[i].year;
-  }
-  cin >> m;
-  for (int i = 0; i < m; i++) {
-    cin >> command >> number;
-    if (command == "name" && 0 <= number && number <= students.size()) {
-      students[number-1].name();
-    } else if (command == "date" && 0 <= number && number <= students.size()) {
-      students[number-1].date();
-    } else {
-      cout << "bad request" << endl;
+    {
+        const Rational r(8, 12);
+        if (r.Numerator() != 2 || r.Denominator() != 3) {
+            cout << "Rational(8, 12) != 2/3" << endl;
+            return 2;
+        }
     }
-  }
+
+    {
+        const Rational r(-4, 6);
+        if (r.Numerator() != -2 || r.Denominator() != 3) {
+            cout << "Rational(-4, 6) != -2/3" << endl;
+            return 3;
+        }
+    }
+
+    {
+        const Rational r(4, -6);
+        if (r.Numerator() != -2 || r.Denominator() != 3) {
+            cout << "Rational(4, -6) != -2/3" << endl;
+            return 3;
+        }
+    }
+
+    {
+        const Rational r(0, 15);
+        if (r.Numerator() != 0 || r.Denominator() != 1) {
+            cout << "Rational(0, 15) != 0/1" << endl;
+            return 4;
+        }
+    }
+
+    {
+        const Rational defaultConstructed;
+        if (defaultConstructed.Numerator() != 0 || defaultConstructed.Denominator() != 1) {
+            cout << "Rational() != 0/1" << endl;
+            return 5;
+        }
+    }
+
+    cout << "OK" << endl;
+    return 0;
 }
