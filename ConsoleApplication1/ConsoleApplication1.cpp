@@ -8,13 +8,13 @@ public:
         newDenominator = 1;
     }
 
-    Rational(int numerator, int denominator) {
+    Rational(long numerator, long denominator) {
         newNumerator = numerator;
         newDenominator = denominator;
         if (newNumerator == 0) {
             newDenominator = 1;
         } else {
-            int maxDivider = Divider(abs(newNumerator), abs(newDenominator));
+            long maxDivider = Divider(abs(newNumerator), abs(newDenominator));
             if (newNumerator * newDenominator < 0) {
                 neg = -1;
             }
@@ -32,8 +32,8 @@ public:
     }
 
 private:
-    int newNumerator, newDenominator, neg = 1;
-    int Divider(int numerator, int denominator) {
+    long newNumerator, newDenominator, neg = 1;
+    long Divider(int numerator, int denominator) {
         int remainder = 1;
         while (remainder != 0) {
             remainder = max(numerator, denominator) % min(numerator, denominator);
@@ -47,44 +47,58 @@ private:
     }
 };
 
+Rational operator+(const Rational& first, const Rational& second) {
+  int numerator = first.Numerator() * second.Denominator() + second.Numerator() * first.Denominator();
+  int denominator = first.Denominator() * second.Denominator();
+  return Rational(numerator, denominator);
+}
+
+Rational operator-(const Rational& first, const Rational& second) {
+  int numerator = first.Numerator() * second.Denominator() - second.Numerator() * first.Denominator();
+  int denominator = first.Denominator() * second.Denominator();
+  return Rational(numerator, denominator);
+}
+
+Rational operator*(const Rational& first, const Rational& second) {
+  long numerator = first.Numerator() * second.Numerator();
+  long denominator = first.Denominator() * second.Denominator();
+  return Rational(numerator, denominator);
+}
+
+Rational operator/(const Rational& first, const Rational& second) {
+  long numerator = first.Numerator() * second.Denominator();
+  long denominator = first.Denominator() * second.Numerator();
+  return Rational(numerator, denominator);
+}
+
+bool operator==(Rational first, Rational second) {
+  if (first.Numerator() == second.Numerator() && first.Denominator() == second.Denominator()) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 int main() {
     {
-        const Rational r(8, 12);
-        if (r.Numerator() != 2 || r.Denominator() != 3) {
-            cout << "Rational(8, 12) != 2/3" << endl;
+        Rational a(2, 3);
+        Rational b(4, 3);
+        Rational c = a * b;
+        bool equal = c == Rational(8, 9);
+        if (!equal) {
+            cout << "2/3 * 4/3 != 8/9" << endl;
+            return 1;
+        }
+    }
+
+    {
+        Rational a(5, 4);
+        Rational b(15, 8);
+        Rational c = a / b;
+        bool equal = c == Rational(2, 3);
+        if (!equal) {
+            cout << "5/4 / 15/8 != 2/3" << endl;
             return 2;
-        }
-    }
-
-    {
-        const Rational r(-4, 6);
-        if (r.Numerator() != -2 || r.Denominator() != 3) {
-            cout << "Rational(-4, 6) != -2/3" << endl;
-            return 3;
-        }
-    }
-
-    {
-        const Rational r(4, -6);
-        if (r.Numerator() != -2 || r.Denominator() != 3) {
-            cout << "Rational(4, -6) != -2/3" << endl;
-            return 3;
-        }
-    }
-
-    {
-        const Rational r(0, 15);
-        if (r.Numerator() != 0 || r.Denominator() != 1) {
-            cout << "Rational(0, 15) != 0/1" << endl;
-            return 4;
-        }
-    }
-
-    {
-        const Rational defaultConstructed;
-        if (defaultConstructed.Numerator() != 0 || defaultConstructed.Denominator() != 1) {
-            cout << "Rational() != 0/1" << endl;
-            return 5;
         }
     }
 

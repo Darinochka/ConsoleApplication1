@@ -1,44 +1,107 @@
 #include <iostream>
-#include <vector>
-#include <fstream>
-#include <string>
-
-
 using namespace std;
 
-struct Student {
-  string firstName;
-  string secondName;
-  int day;
-  int month;
-  int year;
-  void name() {
-    cout << firstName << " " << secondName << endl;
-  }
-  void date() {
-    cout << day << "." << month << "." << year << endl;
-  }
+class Rational {
+public:
+    Rational() {
+        newNumerator = 0;
+        newDenominator = 1;
+    }
+
+    Rational(long numerator, long denominator) {
+        newNumerator = numerator;
+        newDenominator = denominator;
+        if (newNumerator == 0) {
+            newDenominator = 1;
+        } else {
+            long maxDivider = Divider(abs(newNumerator), abs(newDenominator));
+            if (newNumerator * newDenominator < 0) {
+                neg = -1;
+            }
+            newNumerator /= maxDivider;
+            newDenominator /= maxDivider;
+        }
+    }
+
+    int Numerator() const {
+        return abs(newNumerator) * neg;
+    }
+
+    int Denominator() const {
+        return abs(newDenominator);
+    }
+
+private:
+    long newNumerator, newDenominator, neg = 1;
+    long Divider(int numerator, int denominator) {
+        int remainder = 1;
+        while (remainder != 0) {
+            remainder = max(numerator, denominator) % min(numerator, denominator);
+            if (numerator > denominator) {
+                numerator = remainder;
+            } else {
+                denominator = remainder;
+            }
+        }  
+        return max(numerator, denominator); 
+    }
 };
 
-int main() {
-  int n, m, number;
-  string command;
-  cin >> n;
-  vector <Student> students(n);
+Rational operator+(const Rational& first, const Rational& second) {
+  int numerator = first.Numerator() * second.Denominator() + second.Numerator() * first.Denominator();
+  int denominator = first.Denominator() * second.Denominator();
+  return Rational(numerator, denominator);
+}
 
-  for (int i = 0; i < n; i++) {
-    cin >> students[i].firstName >> students[i].secondName >> 
-          students[i].day >> students[i].month >> students[i].year;
+Rational operator-(const Rational& first, const Rational& second) {
+  int numerator = first.Numerator() * second.Denominator() - second.Numerator() * first.Denominator();
+  int denominator = first.Denominator() * second.Denominator();
+  return Rational(numerator, denominator);
+}
+
+Rational operator*(const Rational& first, const Rational& second) {
+  long numerator = first.Numerator() * second.Numerator();
+  long denominator = first.Denominator() * second.Denominator();
+  return Rational(numerator, denominator);
+}
+
+Rational operator/(const Rational& first, const Rational& second) {
+  int numerator = first.Numerator() * second.Denominator();
+  int denominator = first.Denominator() * second.Numerator();
+  return Rational(numerator, denominator);
+}
+
+bool operator==(Rational first, Rational second) {
+  if (first.Numerator() == second.Numerator() && first.Denominator() == second.Denominator()) {
+    return true;
+  } else {
+    return false;
   }
-  cin >> m;
-  for (int i = 0; i < m; i++) {
-    cin >> command >> number;
-    if (command == "name" && 0 < number && number <= students.size()) {
-      students[number-1].name();
-    } else if (command == "date" && 0 < number && number <= students.size()) {
-      students[number-1].date();
-    } else {
-      cout << "bad request" << endl;
+}
+
+int main() {
+    {
+        Rational a(2, 3);
+        Rational b(4, 3);
+        Rational c = a * b;
+        bool equal = c == Rational(8, 9);
+        if (!equal) {
+            cout << "2/3 * 4/3 != 8/9" << endl;
+            return 1;
+        }
     }
-  }
+
+    {
+        Rational a(5, 4);
+        Rational b(15, 8);
+        Rational c = a / b;
+        bool equal = c == Rational(2, 3);
+        if (!equal) {
+            cout << "5/4 / 15/8 != 2/3" << endl;
+            return 2;
+        }
+    }
+
+    cout << "OK" << endl;
+    return 0;
 }
