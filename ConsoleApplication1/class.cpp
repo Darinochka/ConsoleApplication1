@@ -1,17 +1,23 @@
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 class Rational {
 public:
+    long newNumerator;
+    long newDenominator;
+    int neg = 1;
     Rational() {
         newNumerator = 0;
         newDenominator = 1;
+        Rational(newNumerator, newDenominator);
     }
 
     Rational(long numerator, long denominator) {
         newNumerator = numerator;
         newDenominator = denominator;
-        if (newNumerator == 0) {
+        if (newNumerator == 0 || newDenominator == 0) {
+            newNumerator = 0;
             newDenominator = 1;
         } else {
             long maxDivider = Divider(abs(newNumerator), abs(newDenominator));
@@ -30,9 +36,7 @@ public:
     int Denominator() const {
         return abs(newDenominator);
     }
-
 private:
-    long newNumerator, newDenominator, neg = 1;
     long Divider(int numerator, int denominator) {
         int remainder = 1;
         while (remainder != 0) {
@@ -66,8 +70,8 @@ Rational operator*(const Rational& first, const Rational& second) {
 }
 
 Rational operator/(const Rational& first, const Rational& second) {
-  int numerator = first.Numerator() * second.Denominator();
-  int denominator = first.Denominator() * second.Numerator();
+  long numerator = first.Numerator() * second.Denominator();
+  long denominator = first.Denominator() * second.Numerator();
   return Rational(numerator, denominator);
 }
 
@@ -79,26 +83,84 @@ bool operator==(Rational first, Rational second) {
   }
 }
 
+ostream& operator<<(ostream& stream, const Rational& number) {
+    stream << number.Numerator() << '/' << number.Denominator();
+    return stream;
+}
+
+istream& operator>>(istream& stream, Rational& number) {
+    char divideSymbol = '/';
+    long numerator = 0, denominator = 0;
+    stream >> numerator;
+    stream >> divideSymbol;
+    stream >> denominator;
+    if (divideSymbol == '/' && denominator != 0) {
+        number = Rational(numerator, denominator);
+    }
+    return stream;
+}
+
 int main() {
     {
-        Rational a(2, 3);
-        Rational b(4, 3);
-        Rational c = a * b;
-        bool equal = c == Rational(8, 9);
-        if (!equal) {
-            cout << "2/3 * 4/3 != 8/9" << endl;
+        ostringstream output;
+        output << Rational(-6, 8);
+        if (output.str() != "-3/4") {
+            cout << "Rational(-6, 8) should be written as \"-3/4\"" << endl;
             return 1;
+        }
+    }
+    {
+        istringstream input("0/3 5");
+        Rational r;
+        input >> r;
+        bool equal = r == Rational();
+        if (!equal) {
+            cout << r <<  "5/7 is incorrectly read as " << r << endl;
+            return 2;
         }
     }
 
     {
-        Rational a(5, 4);
-        Rational b(15, 8);
-        Rational c = a / b;
-        bool equal = c == Rational(2, 3);
-        if (!equal) {
-            cout << "5/4 / 15/8 != 2/3" << endl;
-            return 2;
+        istringstream input("");
+        Rational r;
+        bool correct = !(input >> r);
+        if (!correct) {
+            cout << "Read from empty stream works incorrectly" << endl;
+            return 3;
+        }
+    }
+
+    {
+        istringstream input("1/0 10/8");
+        Rational r1, r2;
+        input >> r1 >> r2;
+        bool correct = r1 == Rational() && r2 == Rational(5, 4);
+        if (!correct) {
+            cout << "Multiple values are read incorrectly: " << r1 << " " << r2 << endl;
+            return 4;
+        }
+
+        input >> r1;
+        input >> r2;
+        correct = r1 == Rational() && r2 == Rational(5, 4);
+        if (!correct) {
+            cout << "Read from empty stream shouldn't change arguments: " << r1 << " " << r2 << endl;
+            return 5;
+        }
+    }
+
+    {
+        istringstream input1("1*2"), input2("1/"), input3("0");
+        Rational r1, r2, r3;
+        input1 >> r1;
+        input2 >> r2;
+        input3 >> r3;
+        bool correct = r1 == Rational() && r2 == Rational() && r3 == Rational();
+        if (!correct) {
+            cout << "Reading of incorrectly formatted rationals shouldn't change arguments: "
+                 << r1 << " " << r2 << " " << r3 << endl;
+
+            return 6;
         }
     }
 
