@@ -1,4 +1,7 @@
 ﻿#include <iostream>
+#include <set>
+#include <map>
+#include <vector>
 #include <sstream>
 using namespace std;
 
@@ -6,7 +9,6 @@ class Rational {
 public:
     long newNumerator;
     long newDenominator;
-    int neg = 1;
     Rational() {
         newNumerator = 0;
         newDenominator = 1;
@@ -37,6 +39,7 @@ public:
         return abs(newDenominator);
     }
 private:
+    int neg = 1;
     long Divider(int numerator, int denominator) {
         int remainder = 1;
         while (remainder != 0) {
@@ -75,12 +78,15 @@ Rational operator/(const Rational& first, const Rational& second) {
   return Rational(numerator, denominator);
 }
 
-bool operator==(Rational first, Rational second) {
-  if (first.Numerator() == second.Numerator() && first.Denominator() == second.Denominator()) {
-    return true;
-  } else {
-    return false;
-  }
+bool operator==(const Rational& first, const Rational& second) {
+    return first.Numerator() == second.Numerator() && first.Denominator() == second.Denominator();
+}
+
+bool operator<(const Rational& first, const Rational& second) {
+    if (first.Denominator() == second.Denominator()) {
+        return first.Numerator() < second.Numerator();
+    }
+    return first.Numerator() * second.Denominator() < second.Numerator() * first.Denominator();
 }
 
 ostream& operator<<(ostream& stream, const Rational& number) {
@@ -102,66 +108,33 @@ istream& operator>>(istream& stream, Rational& number) {
 
 int main() {
     {
-        ostringstream output;
-        output << Rational(-6, 8);
-        if (output.str() != "-3/4") {
-            cout << "Rational(-6, 8) should be written as \"-3/4\"" << endl;
+        const set<Rational> rs = { {1, 2}, {1, 25}, {3, 4}, {3, 4}, {1, 2} };
+        if (rs.size() != 3) {
+            cout << "Wrong amount of items in the set" << endl;
             return 1;
         }
-    }
 
-    {
-        istringstream input("5/7");
-        Rational r;
-        input >> r;
-        bool equal = r == Rational(5, 7);
-        if (!equal) {
-            cout << "5/7 is incorrectly read as " << r << endl;
+        vector<Rational> v;
+        for (auto x : rs) {
+            cout << x << endl;
+            v.push_back(x);
+        }
+        if (v != vector<Rational>{ {1, 25}, { 1, 2 }, { 3, 4 }}) {
+            cout << "Rationals comparison works incorrectly" << endl;
             return 2;
         }
     }
 
     {
-        istringstream input("");
-        Rational r;
-        bool correct = !(input >> r);
-        if (!correct) {
-            cout << "Read from empty stream works incorrectly" << endl;
+        map<Rational, int> count;
+        ++count[{1, 2}];
+        ++count[{1, 2}];
+
+        ++count[{2, 3}];
+
+        if (count.size() != 2) {
+            cout << "Wrong amount of items in the map" << endl;
             return 3;
-        }
-    }
-
-    {
-        istringstream input("a/7 10/8");
-        Rational r1, r2;
-        input >> r1 >> r2;
-        bool correct = r1 == Rational() && r2 == Rational(5, 4);
-        if (!correct) {
-            cout << "Multiple values are read incorrectly: " << r1 << " " << r2 << endl;
-            return 4;
-        }
-
-        input >> r1;
-        input >> r2;
-        correct = r1 == Rational() && r2 == Rational(5, 4);
-        if (!correct) {
-            cout << "Read from empty stream shouldn't change arguments: " << r1 << " " << r2 << endl;
-            return 5;
-        }
-    }
-
-    {
-        istringstream input1("1*2"), input2("1/"), input3("/4");
-        Rational r1, r2, r3;
-        input1 >> r1;
-        input2 >> r2;
-        input3 >> r3;
-        bool correct = r1 == Rational() && r2 == Rational() && r3 == Rational();
-        if (!correct) {
-            cout << "Reading of incorrectly formatted rationals shouldn't change arguments: "
-                << r1 << " " << r2 << " " << r3 << endl;
-
-            return 6;
         }
     }
 
