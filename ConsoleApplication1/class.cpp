@@ -1,143 +1,140 @@
 #include <iostream>
-#include <set>
-#include <map>
-#include <vector>
-#include <sstream>
+
 using namespace std;
+
+// один из способов вычисления наибольшего общего делителя (НОД) — рекурсивный:
+// вместо цикла функция будет вызывать себя же, но с другими аргументами
+int GreatestCommonDivisor(int a, int b) {
+  if (b == 0) {
+    return a;
+  } else {
+    return GreatestCommonDivisor(b, a % b);
+  }
+}
 
 class Rational {
 public:
-    long newNumerator;
-    long newDenominator;
-    Rational() {
-        newNumerator = 0;
-        newDenominator = 1;
-        Rational(newNumerator, newDenominator);
+  Rational() {  // дробь по умолчанию — 0/1
+    numerator = 0;
+    denominator = 1;
+  }
+  Rational(int new_numerator, int new_denominator) {
+    if (new_denominator == 0) {
+      // бросаем исключение в случае нулевого знаменателя
+          throw exception();
     }
+    const int gcd = GreatestCommonDivisor(new_numerator, new_denominator);
+    // сократим дробь, разделив числитель и знаменатель на их НОД
+    numerator = new_numerator / gcd;
+    denominator = new_denominator / gcd;
+    // знаменатель должен быть положительным
+    if (denominator < 0) {
+      denominator = -denominator;
+      numerator = -numerator;
+    }
+  }
 
-    Rational(long numerator, long denominator) {
-        newNumerator = numerator;
-        newDenominator = denominator;
-        if (newNumerator == 0 || newDenominator == 0) {
-            newNumerator = 0;
-            newDenominator = 1;
-        } else {
-            long maxDivider = Divider(abs(newNumerator), abs(newDenominator));
-            if (newNumerator * newDenominator < 0) {
-                neg = -1;
-            }
-            newNumerator /= maxDivider;
-            newDenominator /= maxDivider;
-        }
-    }
+  int Numerator() const {
+    return numerator;
+  }
 
-    int Numerator() const {
-        return abs(newNumerator) * neg;
-    }
+  int Denominator() const {
+    return denominator;
+  }
 
-    int Denominator() const {
-        return abs(newDenominator);
-    }
 private:
-    int neg = 1;
-    long Divider(int numerator, int denominator) {
-        int remainder = 1;
-        while (remainder != 0) {
-            remainder = max(numerator, denominator) % min(numerator, denominator);
-            if (numerator > denominator) {
-                numerator = remainder;
-            } else {
-                denominator = remainder;
-            }
-        }  
-        return max(numerator, denominator); 
-    }
+  int numerator;
+  int denominator;
 };
 
-Rational operator+(const Rational& first, const Rational& second) {
-  int numerator = first.Numerator() * second.Denominator() + second.Numerator() * first.Denominator();
-  int denominator = first.Denominator() * second.Denominator();
-  return Rational(numerator, denominator);
+// поскольку дроби сокращены, достаточно сравнить числители и знаменатели
+bool operator == (const Rational& lhs, const Rational& rhs) {
+  return lhs.Numerator() == rhs.Numerator() &&
+      lhs.Denominator() == rhs.Denominator();
 }
 
-Rational operator-(const Rational& first, const Rational& second) {
-  int numerator = first.Numerator() * second.Denominator() - second.Numerator() * first.Denominator();
-  int denominator = first.Denominator() * second.Denominator();
-  return Rational(numerator, denominator);
+// используем обычную формулу сложения дробей, основанную на приведении слагаемых к общему знаменателю
+Rational operator + (const Rational& lhs, const Rational& rhs) {
+  return {
+      lhs.Numerator() * rhs.Denominator() + rhs.Numerator() * lhs.Denominator(),
+      lhs.Denominator() * rhs.Denominator()
+  };
 }
 
-Rational operator*(const Rational& first, const Rational& second) {
-  long numerator = first.Numerator() * second.Numerator();
-  long denominator = first.Denominator() * second.Denominator();
-  return Rational(numerator, denominator);
+// вычитание реализуем аналогично сложению
+// дублирования кода можно было избежать, определив для класса Rational операцию унарного минуса: тогда разность lhs и rhs можно было бы вычислить           как lhs + (-rhs)
+Rational operator - (const Rational& lhs, const Rational& rhs) {
+  return {
+      lhs.Numerator() * rhs.Denominator() - rhs.Numerator() * lhs.Denominator(),
+      lhs.Denominator() * rhs.Denominator()
+  };
 }
 
-Rational operator/(const Rational& first, const Rational& second) {
-  long numerator = first.Numerator() * second.Denominator();
-  long denominator = first.Denominator() * second.Numerator();
-  return Rational(numerator, denominator);
+Rational operator * (const Rational& lhs, const Rational& rhs) {
+  return {
+      lhs.Numerator() * rhs.Numerator(),
+      lhs.Denominator() * rhs.Denominator()
+  };
 }
 
-bool operator==(const Rational& first, const Rational& second) {
-    return first.Numerator() == second.Numerator() && first.Denominator() == second.Denominator();
+// деление равносильно умножению на обратную («перевёрнутую») дробь
+Rational operator / (const Rational& lhs, const Rational& rhs) {
+  if (rhs.Numerator() == 0) {
+    throw exception();
+  }
+  return lhs * Rational(rhs.Denominator(), rhs.Numerator());
 }
 
-bool operator<(const Rational& first, const Rational& second) {
-    if (first.Denominator() == second.Denominator()) {
-        return first.Numerator() < second.Numerator();
-    }
-    return first.Numerator() * second.Denominator() < second.Numerator() * first.Denominator();
+istream& operator >> (istream& is, Rational& r) {
+  int n, d;
+  char c;
+
+  if (is) {
+      is >> n >> c >> d;
+      if (is) {
+          if (c == '/') {
+              r = Rational(n, d);
+          }
+          else {
+              is.setstate(ios_base::failbit);
+          }
+      }
+  }
+
+  return is;
 }
 
-ostream& operator<<(ostream& stream, const Rational& number) {
-    stream << number.Numerator() << '/' << number.Denominator();
-    return stream;
+ostream& operator << (ostream& os, const Rational& r) {
+  return os << r.Numerator() << '/' << r.Denominator();
 }
 
-istream& operator>>(istream& stream, Rational& number) {
-    char divideSymbol = '/';
-    long numerator = 0, denominator = 0;
-    stream >> numerator;
-    stream >> divideSymbol;
-    stream >> denominator;
-    if (divideSymbol == '/' && denominator != 0) {
-        number = Rational(numerator, denominator);
-    }
-    return stream;
+// чтобы сравнить lhs с rhs, сравним их разность с нулём, что равносильно сравнению с нулём числителя
+bool operator < (const Rational& lhs, const Rational& rhs) {
+  return (lhs - rhs).Numerator() < 0;
 }
 
+Rational Calcul(const Rational& lhs, const Rational& rhs, char operation) {
+  if (operation == '+') {
+    return (lhs + rhs);
+  } else if (operation == '-') {
+    return (lhs - rhs);
+  } else if (operation == '*') {
+    return (lhs * rhs);
+  } else {
+    return (lhs / rhs);
+  }
+}
 int main() {
-    {
-        const set<Rational> rs = { {1, 2}, {1, 25}, {3, 4}, {3, 4}, {1, 2} };
-        if (rs.size() != 3) {
-            cout << "Wrong amount of items in the set" << endl;
-            return 1;
-        }
-
-        vector<Rational> v;
-        for (auto x : rs) {
-            cout << x << endl;
-            v.push_back(x);
-        }
-        if (v != vector<Rational>{ {1, 25}, { 1, 2 }, { 3, 4 }}) {
-            cout << "Rationals comparison works incorrectly" << endl;
-            return 2;
-        }
+  Rational lhs, rhs;
+  char operation;
+  try {
+    cin >> lhs >> operation >> rhs;
+    try {
+      cout << Calcul(lhs, rhs, operation);
+    } catch (exception& ex) {
+      cout << "Division by zero";
     }
-
-    {
-        map<Rational, int> count;
-        ++count[{1, 2}];
-        ++count[{1, 2}];
-
-        ++count[{2, 3}];
-
-        if (count.size() != 2) {
-            cout << "Wrong amount of items in the map" << endl;
-            return 3;
-        }
-    }
-
-    cout << "OK" << endl;
-    return 0;
+  } catch (exception& ex) {
+    cout << "Invalid argument";
+  }
 }
