@@ -1,140 +1,43 @@
 #include <iostream>
-
+#include <exception>
+#include <string>
 using namespace std;
 
-// один из способов вычисления наибольшего общего делителя (НОД) — рекурсивный:
-// вместо цикла функция будет вызывать себя же, но с другими аргументами
-int GreatestCommonDivisor(int a, int b) {
-  if (b == 0) {
-    return a;
-  } else {
-    return GreatestCommonDivisor(b, a % b);
-  }
+string AskTimeServer() {
+    string current_time = "00:02:34";
+    bool key = true;
+    bool flag = false;
+    if (!key) {
+        throw system_error(error_code());
+    } else if (!flag) {
+        throw exception();
+    } else {
+        return current_time;
+    }
 }
 
-class Rational {
+class TimeServer {
 public:
-  Rational() {  // дробь по умолчанию — 0/1
-    numerator = 0;
-    denominator = 1;
-  }
-  Rational(int new_numerator, int new_denominator) {
-    if (new_denominator == 0) {
-      // бросаем исключение в случае нулевого знаменателя
-          throw exception();
+    string GetCurrentTime() {
+        try {
+            last_fetched_time = AskTimeServer();
+            return last_fetched_time;
+        } catch (system_error&) {
+            return last_fetched_time;
+        }  
     }
-    const int gcd = GreatestCommonDivisor(new_numerator, new_denominator);
-    // сократим дробь, разделив числитель и знаменатель на их НОД
-    numerator = new_numerator / gcd;
-    denominator = new_denominator / gcd;
-    // знаменатель должен быть положительным
-    if (denominator < 0) {
-      denominator = -denominator;
-      numerator = -numerator;
-    }
-  }
-
-  int Numerator() const {
-    return numerator;
-  }
-
-  int Denominator() const {
-    return denominator;
-  }
 
 private:
-  int numerator;
-  int denominator;
+    string last_fetched_time = "00:00:00";
 };
 
-// поскольку дроби сокращены, достаточно сравнить числители и знаменатели
-bool operator == (const Rational& lhs, const Rational& rhs) {
-  return lhs.Numerator() == rhs.Numerator() &&
-      lhs.Denominator() == rhs.Denominator();
-}
-
-// используем обычную формулу сложения дробей, основанную на приведении слагаемых к общему знаменателю
-Rational operator + (const Rational& lhs, const Rational& rhs) {
-  return {
-      lhs.Numerator() * rhs.Denominator() + rhs.Numerator() * lhs.Denominator(),
-      lhs.Denominator() * rhs.Denominator()
-  };
-}
-
-// вычитание реализуем аналогично сложению
-// дублирования кода можно было избежать, определив для класса Rational операцию унарного минуса: тогда разность lhs и rhs можно было бы вычислить           как lhs + (-rhs)
-Rational operator - (const Rational& lhs, const Rational& rhs) {
-  return {
-      lhs.Numerator() * rhs.Denominator() - rhs.Numerator() * lhs.Denominator(),
-      lhs.Denominator() * rhs.Denominator()
-  };
-}
-
-Rational operator * (const Rational& lhs, const Rational& rhs) {
-  return {
-      lhs.Numerator() * rhs.Numerator(),
-      lhs.Denominator() * rhs.Denominator()
-  };
-}
-
-// деление равносильно умножению на обратную («перевёрнутую») дробь
-Rational operator / (const Rational& lhs, const Rational& rhs) {
-  if (rhs.Numerator() == 0) {
-    throw exception();
-  }
-  return lhs * Rational(rhs.Denominator(), rhs.Numerator());
-}
-
-istream& operator >> (istream& is, Rational& r) {
-  int n, d;
-  char c;
-
-  if (is) {
-      is >> n >> c >> d;
-      if (is) {
-          if (c == '/') {
-              r = Rational(n, d);
-          }
-          else {
-              is.setstate(ios_base::failbit);
-          }
-      }
-  }
-
-  return is;
-}
-
-ostream& operator << (ostream& os, const Rational& r) {
-  return os << r.Numerator() << '/' << r.Denominator();
-}
-
-// чтобы сравнить lhs с rhs, сравним их разность с нулём, что равносильно сравнению с нулём числителя
-bool operator < (const Rational& lhs, const Rational& rhs) {
-  return (lhs - rhs).Numerator() < 0;
-}
-
-Rational Calcul(const Rational& lhs, const Rational& rhs, char operation) {
-  if (operation == '+') {
-    return (lhs + rhs);
-  } else if (operation == '-') {
-    return (lhs - rhs);
-  } else if (operation == '*') {
-    return (lhs * rhs);
-  } else {
-    return (lhs / rhs);
-  }
-}
 int main() {
-  Rational lhs, rhs;
-  char operation;
-  try {
-    cin >> lhs >> operation >> rhs;
+    // Меняя реализацию функции AskTimeServer, убедитесь, что это код работает корректно
+    TimeServer ts;
     try {
-      cout << Calcul(lhs, rhs, operation);
-    } catch (exception& ex) {
-      cout << "Division by zero";
+        cout << ts.GetCurrentTime() << endl;
+    } catch (exception& e) {
+        cout << "Exception got: " << e.what() << endl;
     }
-  } catch (exception& ex) {
-    cout << "Invalid argument";
-  }
+    return 0;
 }
