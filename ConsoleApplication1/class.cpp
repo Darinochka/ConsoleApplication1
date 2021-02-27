@@ -3,74 +3,64 @@
 #include <map>
 using namespace std;
 
-class TeamTasks {
-public:
-  // Получить статистику по статусам задач конкретного разработчика
-  const TasksInfo& GetPersonTasksInfo(const string& person) {
-    return PersonsTasks[person];
-  }
-  
-  // Добавить новую задачу (в статусе NEW) для конкретного разработчитка
-  void AddNewTask(const string& person) {
-    ++PersonsTasks[person][TaskStatus::NEW];
-  }
-  
-  // Обновить статусы по данному количеству задач конкретного разработчика,
-  // подробности см. ниже
-  tuple<TasksInfo, TasksInfo> PerformPersonTasks(
-      const string& person, int task_count){
-        TasksInfo update_tasks = {{}};
-        TasksInfo untouched_tasks = PersonsTasks[person];
-        for (auto [key, value] : PersonsTasks[person]) {
-          if (key != TaskStatus::DONE && task_count > 0) {
-            int temp = task_count <= value ? task_count : value;
-            update_tasks[ChangeProgress(key)] += temp;
-            untouched_tasks[key] -= temp;
-            task_count -= temp;
-          }
-        }
-        DeleteZeroKey(update_tasks);
-        DeleteZeroKey(untouched_tasks);
-        PersonsTasks[person] = MergeMap(update_tasks, untouched_tasks);
-        untouched_tasks[TaskStatus::DONE] = 0;
-        DeleteZeroKey(untouched_tasks);
-        return tie(update_tasks, untouched_tasks);
-      }
+template <typename First, typename Second>
+  pair<First, Second> operator*(const pair<First, Second>& p1, const pair<First, Second>& p2);
 
-private:
-  map<string, TasksInfo> PersonsTasks;
+template <typename Key, typename Value>
+  map<Key, Value> operator*(const map<Key, Value>& lhs, const map<Key, Value>& rhs);
 
-  void DeleteZeroKey( TasksInfo& tasks_info) {
-    TasksInfo result = tasks_info;
-    for (auto [key, value] : result) {
-      if (value == 0) {
-        tasks_info.erase(key);
-      }
-    }
+template <typename T>
+  vector<T> operator*(const vector<T>& lhs, const vector<T>& rhs);
+
+template <typename T> T Sqr(T x);
+
+template <typename First, typename Second>
+  pair<First, Second> operator*(const pair<First, Second>& p1, const pair<First, Second>& p2) {
+    First resultFirst = p1.first * p2.first;
+    Second resultSecond = p1.second * p2.second;
+
+    return {resultFirst, resultSecond};
   }
 
-  void AddMap(map<TaskStatus, int>& result, const TasksInfo& task_info) {
-    for (auto [key, value]: task_info) {
-      result[key] += value;
-    }
-  }
-
-  map<TaskStatus, int> MergeMap(const TasksInfo& lhs, const TasksInfo& rhs) {
-    map<TaskStatus, int> result;
-    AddMap(result, lhs);
-    AddMap(result, rhs);
-    return result;
-  }
-
-  TaskStatus ChangeProgress(const TaskStatus& task_status) {
-    switch (task_status){
-    case TaskStatus::NEW:
-      return TaskStatus::IN_PROGRESS;
-      
-    case TaskStatus::IN_PROGRESS:
-      return TaskStatus::TESTING;
+template <typename Key, typename Value>
+  map<Key, Value> operator*(const map<Key, Value>& lhs, const map<Key, Value>& rhs) {
+    map<Key, Value> new_m;
+    for (auto [key, value] : lhs) {
+      new_m[key] = value * rhs.at(key);
     }
 
-    return TaskStatus::DONE;
+    return new_m;
   }
-};
+
+template <typename T>
+  vector<T> operator*(const vector<T>& lhs, const vector<T>& rhs) {
+    vector<T> new_v;
+    for (int i = 0; i < lhs.size(); i++) {
+      new_v.push_back(lhs[i]*rhs[i]);
+    }
+
+    return new_v;
+  }
+
+template <typename T>
+  T Sqr(T x) {
+    return x * x;
+  }
+
+int main() {
+  vector<int> v = {1, 2, 3};
+  cout << "vector:";
+  for (int x : Sqr(v)) {
+    cout << ' ' << x;
+  }
+  cout << endl;
+
+  map<int, pair<int, int>> map_of_pairs = {
+    {4, {2, 2}},
+    {7, {4, 3}}
+  };
+  cout << "map of pairs:" << endl;
+  for (const auto& x : Sqr(map_of_pairs)) {
+    cout << x.first << ' ' << x.second.first << ' ' << x.second.second << endl;
+  }
+}
